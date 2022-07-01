@@ -32,6 +32,8 @@ public class API_Activities {
     // for endpoint /Activities/12
     @Test
     public void verifyContentType02() {
-        RestAssured.given().when().get("https://fakerestapi.azurewebsites.net/api/v1/Activities/12").then().assertThat().contentType(ContentType.JSON);
+        //another way of verifying content type
+        RestAssured.given().when().get("https://fakerestapi.azurewebsites.net/api/v1/Activities/12")
+                   .then().assertThat().header("Content-Type", "application/json; charset=utf-8; v=1.0");
     }
 }
