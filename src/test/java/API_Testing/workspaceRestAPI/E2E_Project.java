@@ -3,6 +3,7 @@ package API_Testing.workspaceRestAPI;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import org.json.JSONObject;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -95,7 +96,7 @@ public class E2E_Project {
                             variables.get("userId") + "\",\"workspaceId\":\"" + variables.get("id") +
                              "\",\"name\":\"testing22\",\"description\":\"testing\",\"type\":\"DESIGN\",\"tags\":[]}";
 
-        response = RestAssured.given().headers("Content-type", ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody).when().post("/design/projects").then()
+        response = RestAssured.given().contentType(ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody).when().post("/design/projects").then()
                 .extract().response();
 
         Assert.assertEquals("testing22", response.jsonPath().getString("name"));
@@ -110,15 +111,40 @@ public class E2E_Project {
 
     @Test(dependsOnMethods = {"memberOf", "createProject"}, description = "we need those 2 methods to be able to update the project")
     public void updateProject() {
-        String requestBody1 = "{\"created\":1615443320845,\"description\":\"TLAupdate\",\"id\":\"" + projectID +
-                               "\",\"lastModified\":1629860121757,\"name\":\"TLA accounting\",\"tags\":[],\"type\":\"DESIGN\",\"userId\":\"" +
-                               variables.get("userID") + "\",\"workspaceId\":\"" + variables.get("id") + "\"}";
+        //Create JSON body
+        JSONObject body = new JSONObject();
+        body.put("created", 1615443320845L);
+        body.put("description", "TLAupdate");
+        body.put("id", projectID);
+        body.put("lastModified", 1656902579223L);
+        body.put("name", "TLA accounting");
+        body.put("type", "DESIGN");
+        body.put("userId", variables.get("userId"));
+        body.put("workspaceId", variables.get("id"));
 
-        response = RestAssured.given().headers("Content-type", ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody1)
-                   .when().put("/design/projects/" + projectID).then().extract().response();
+        //Get response
+        response = RestAssured.given().header("authorization", setupLogInAndToken()).contentType(ContentType.JSON).body(body.toString())
+                .put("design/projects/" + projectID);
+
+        //Another way of doing it using String request body
+//        String requestBody1 = "{\"created\":1615443320845,\"description\":\"TLAupdate\",\"id\":\"" + projectID +
+//                               "\",\"lastModified\":1629860121757,\"name\":\"TLA accounting\",\"tags\":[],\"type\":\"DESIGN\",\"userId\":\"" +
+//                               variables.get("userID") + "\",\"workspaceId\":\"" + variables.get("id") + "\"}";
+//
+//
+//        response = RestAssured.given().headers("Content-type", ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody1)
+//                   .when().put("/design/projects/" + projectID).then().extract().response();
         System.out.println(response.prettyPrint());
 
         //TODO do assertions for id, name, type, userId, workspaceId, status code, Content-type
+        Assert.assertEquals(SC_OK, response.statusCode(), "status code doesn't match");
+        Assert.assertEquals(body.get("name"), response.jsonPath().getString("name"), "name doesn't match");
+        Assert.assertEquals(projectID, response.jsonPath().getString("id"), "id doesn't match");
+        Assert.assertEquals(body.get("type"), response.jsonPath().getString("type"), "type doesn't match");
+        Assert.assertEquals(userId, response.jsonPath().getString("userId"), "userId doesn't match");
+        Assert.assertEquals(id, response.jsonPath().getString("workspaceId"), "workspaceID doesn't match");
+
+
     }
 
     @Test(dependsOnMethods = {"memberOf", "createProject", "updateProject"})
