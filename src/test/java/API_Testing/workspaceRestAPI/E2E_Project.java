@@ -94,10 +94,11 @@ public class E2E_Project {
     public void createProject() {
         String requestBody = "{\"id\":\"\",\"created\":\"2021-03-11T06:15:20.845Z\",\"lastModified\":\"2021-03-11T06:15:20.845Z\",\"userId\":\"" +
                             variables.get("userId") + "\",\"workspaceId\":\"" + variables.get("id") +
-                             "\",\"name\":\"testing22\",\"description\":\"testing\",\"type\":\"DESIGN\",\"tags\":[]}";
+                             "\",\"name\":\"testing223\",\"description\":\"testing\",\"type\":\"DESIGN\",\"tags\":[]}";
 
         response = RestAssured.given().contentType(ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody).when().post("/design/projects").then()
                 .extract().response();
+        System.out.println(response.prettyPrint());
 
         Assert.assertEquals("testing22", response.jsonPath().getString("name"));
         // Using hamcrest matchers validation
@@ -107,6 +108,7 @@ public class E2E_Project {
 
         //Store id on a variable for future use
         projectID = response.jsonPath().get("id");
+
     }
 
     @Test(dependsOnMethods = {"memberOf", "createProject"}, description = "we need those 2 methods to be able to update the project")
@@ -137,21 +139,41 @@ public class E2E_Project {
         System.out.println(response.prettyPrint());
 
         //TODO do assertions for id, name, type, userId, workspaceId, status code, Content-type
-        Assert.assertEquals(SC_OK, response.statusCode(), "status code doesn't match");
-        Assert.assertEquals(body.get("name"), response.jsonPath().getString("name"), "name doesn't match");
-        Assert.assertEquals(projectID, response.jsonPath().getString("id"), "id doesn't match");
-        Assert.assertEquals(body.get("type"), response.jsonPath().getString("type"), "type doesn't match");
-        Assert.assertEquals(userId, response.jsonPath().getString("userId"), "userId doesn't match");
-        Assert.assertEquals(id, response.jsonPath().getString("workspaceId"), "workspaceID doesn't match");
-
-
+        Assert.assertEquals(projectID, response.jsonPath().getString("id"));
+        Assert.assertEquals(body.get("name"), response.jsonPath().getString("name"));
+        Assert.assertEquals(body.get("type"), response.jsonPath().getString("type"));
+        Assert.assertEquals(userId, response.jsonPath().getString("userId"));
+        Assert.assertEquals(id, response.jsonPath().getString("workspaceId"));
+        Assert.assertEquals(SC_OK, response.statusCode());
+        Assert.assertEquals(ContentType.JSON.toString(), response.contentType());
     }
+
 
     @Test(dependsOnMethods = {"memberOf", "createProject", "updateProject"})
     public void deleteProject() {
         response = RestAssured.given().header("authorization", setupLogInAndToken()).when().delete("design/projects/" + projectID).then()
                 .extract().response();
         Assert.assertEquals(SC_NO_CONTENT, response.statusCode());
+    }
+
+    @Test(description = "My own method for updating the already existing project using hardcoded data of id, userId and workspaceId")
+    public void updateProjectSeparately() {
+        //Create JSON body using hardcoded data
+        JSONObject body = new JSONObject();
+        body.put("created", 1615443320845L);
+        body.put("description", "testing YESSS");
+        body.put("id", "Giizy4EBrZGjujUF9aYc");
+        body.put("lastModified", 1656979977499L);
+        body.put("name", "testing223");
+        body.put("type", "DESIGN");
+        body.put("userId", "15kNvH0B9ik-roTyxShe");
+        body.put("workspaceId", "eqEOvH0Bp7hMViDsyIob");
+
+        //Get response
+        response = RestAssured.given().header("authorization", setupLogInAndToken()).contentType(ContentType.JSON).body(body.toString())
+                .put("design/projects/" + "Giizy4EBrZGjujUF9aYc");
+        System.out.println(response.prettyPrint());
+
     }
 
 
