@@ -94,11 +94,10 @@ public class E2E_Project {
     public void createProject() {
         String requestBody = "{\"id\":\"\",\"created\":\"2021-03-11T06:15:20.845Z\",\"lastModified\":\"2021-03-11T06:15:20.845Z\",\"userId\":\"" +
                             variables.get("userId") + "\",\"workspaceId\":\"" + variables.get("id") +
-                             "\",\"name\":\"testing223\",\"description\":\"testing\",\"type\":\"DESIGN\",\"tags\":[]}";
+                             "\",\"name\":\"testing22\",\"description\":\"testing\",\"type\":\"DESIGN\",\"tags\":[]}";
 
         response = RestAssured.given().contentType(ContentType.JSON).header("authorization", setupLogInAndToken()).and().body(requestBody).when().post("/design/projects").then()
                 .extract().response();
-        System.out.println(response.prettyPrint());
 
         Assert.assertEquals("testing22", response.jsonPath().getString("name"));
         // Using hamcrest matchers validation
@@ -139,13 +138,13 @@ public class E2E_Project {
         System.out.println(response.prettyPrint());
 
         //TODO do assertions for id, name, type, userId, workspaceId, status code, Content-type
-        Assert.assertEquals(projectID, response.jsonPath().getString("id"));
-        Assert.assertEquals(body.get("name"), response.jsonPath().getString("name"));
-        Assert.assertEquals(body.get("type"), response.jsonPath().getString("type"));
-        Assert.assertEquals(userId, response.jsonPath().getString("userId"));
-        Assert.assertEquals(id, response.jsonPath().getString("workspaceId"));
-        Assert.assertEquals(SC_OK, response.statusCode());
-        Assert.assertEquals(ContentType.JSON.toString(), response.contentType());
+        assertThat(response.jsonPath().getString("id"), is(projectID));
+        assertThat(response.jsonPath().getString("name"), is(body.get("name")));
+        assertThat(response.jsonPath().getString("type"), is(body.get("type")));
+        assertThat(response.jsonPath().getString("userId"), is(userId));
+        assertThat(response.jsonPath().getString("workspaceId"), is(id));
+        assertThat(response.statusCode(), is(SC_OK));
+        assertThat(response.contentType(), is(ContentType.JSON.toString()));
     }
 
 
