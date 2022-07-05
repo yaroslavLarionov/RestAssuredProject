@@ -155,26 +155,4 @@ public class E2E_Project {
         Assert.assertEquals(SC_NO_CONTENT, response.statusCode());
     }
 
-    @Test(description = "My own method for updating the already existing project using hardcoded data of id, userId and workspaceId")
-    public void updateProjectSeparately() {
-        //Create JSON body using hardcoded data
-        JSONObject body = new JSONObject();
-        body.put("created", 1615443320845L);
-        body.put("description", "testing YESSS");
-        body.put("id", "Giizy4EBrZGjujUF9aYc");
-        body.put("lastModified", 1656979977499L);
-        body.put("name", "testing223");
-        body.put("type", "DESIGN");
-        body.put("userId", "15kNvH0B9ik-roTyxShe");
-        body.put("workspaceId", "eqEOvH0Bp7hMViDsyIob");
-
-        //Get response
-        response = RestAssured.given().header("authorization", setupLogInAndToken()).contentType(ContentType.JSON).body(body.toString())
-                .put("design/projects/" + "Giizy4EBrZGjujUF9aYc");
-        System.out.println(response.prettyPrint());
-
-    }
-
-
-
 }
